@@ -2,3 +2,27 @@ import { pipeline } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17
 
 let embedder = null;
 let searchIndex = [];
+
+const modelStatusEl = document.getElementById("model-status");
+const peerStatusEl = document.getElementById("peer-status");
+const resultsEl = document.getElementById("results");
+const searchInput = document.getElementById("search-input");
+const searchButton = document.getElementById("search-button");
+
+async function loadModel() {
+    modelStatusEl.textContent = "Loading local AI model...";
+
+    embedder = await pipeline(
+        "feature-extraction",
+        "Xenova/all-MiniLM-L6-v2"
+    );
+
+    modelStatusEl.textContent =
+        "✅ Local AI model ready — search runs fully on this device.";
+}
+
+async function init() {
+    await loadModel();
+}
+
+init();
