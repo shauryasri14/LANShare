@@ -1,15 +1,15 @@
 import socket
 import json
 import time
-
+import threading
 broad_port=50000
 tcp_port=50001
+peers={}
+peer_lock=threading.Lock()
 socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-# print(socket.gethostbyname(socket.gethostname()))
+
 my_name=socket.gethostname()
-# my_ip=socket.gethostbyname(socket.gethostname())
-# print(my_name)
-# print(my_ip)
+
 def getmyip():
     s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     try:
@@ -41,4 +41,49 @@ def broadcast():
         except OSError as e:
             print(f"OS Error {e}")
         time.sleep(3)
+
+def listener():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("", broad_port))
+    while True:
+        data,addr=sock.recvfrom(2048)
+        try:
+            msg=json.loads(data.decode())
+        except json.JSONDecodeError:
+            continue
+
+        if msg.get("type")!="hello":
+            continue
+        if msg.get("ip") == my_ip:
+            continue
+        with peer_lock:
+            peers[msg["ip"]]={
+                "name": msg.get("name", "Unknown"),
+                "tcp_port": msg.get("tcp_port", tcp_port),
+                "last_seen": time.time(),
+            }
+
+def cleanup():
+    while True:
+        time.sleep(5)
+        cutoff=time.time()-15
+        with peer_lock:
+            stale = []
+            for ip, info in peers.items():
+                if info["last_seen"] < cutoff:
+                    stale.append(ip)
+            for ip in stale:
+                del peers[ip]
+
+def getpeersnapshot():
+    with peer_lock:
+        new_dictionary = {}
+        for ip, info in peers.items():
+            new_dictionary[ip] = dict(info)
+    return new_dictionary
+
+
+
+
 
