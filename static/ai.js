@@ -41,6 +41,20 @@ function cosineSimilarity(a, b) {
 
     return dot;
 }
+async function fetchPeers() {
+    const res = await fetch("/api/peers");
+    return res.json();
+}
+
+async function fetchManifest(peerIp) {
+    const res = await fetch(`/api/manifest?peer=${encodeURIComponent(peerIp)}`);
+
+    if (!res.ok) {
+        return [];
+    }
+
+    return res.json();
+}
 async function init() {
     await loadModel();
 }
