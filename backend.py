@@ -9,6 +9,7 @@ tcp_port=50001
 peers={}
 peer_lock=threading.Lock()
 socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+SHARED_DIR=os.path.join(os.path.dirname(__file__),"shared files")
 
 my_name=socket.gethostname()
 
@@ -85,7 +86,7 @@ def getpeersnapshot():
             new_dictionary[ip] = dict(info)
     return new_dictionary
 
-def extract_test(filepath):
+def extract_text(filepath):
     ext=os.path.splitext((filepath))[1].lower()
     try:
         if ext==".txt" or ext == ".md":
@@ -107,7 +108,44 @@ def extract_test(filepath):
         print(f"extract text failed for {filepath}:{e}")
     return ""
 
+def build_my_manifest():
+    file_list = []
+    for filename in os.listdir(SHARED_DIR):
+        full_path = os.path.join(SHARED_DIR, filename)
+        if not os.path.isfile(full_path):
+            continue
+        file_list.append({
+            "filename": filename,
+            "size": os.path.getsize(full_path),
+            "text": extract_text(full_path),
+        })
+    return file_list
 
-
-
+def handle_tcp_client(conn, addr):
+    try:
+        request = conn.recv(4096).decode(errors="ignore").strip()
+        if request == "MANIFEST":
+            manifest = build_my_manifest()
+            payload = json.dumps(manifest).encode()
+            conn.sendall(len(payload).to_bytes(8, "big"))
+            conn.sendall(payload)
+        elif request.startswith("GET "):
+            filename = request[4:].strip()
+            filepath = os.path.join(SHARED_DIR, filename)
+            if not os.path.abspath(filepath).startswith(os.path.abspath(SHARED_DIR)):
+                conn.sendall((0).to_bytes(8, "big"))
+                return
+            if not os.path.isfile(filepath):
+                conn.sendall((0).to_bytes(8, "big"))
+                return
+            filesize = os.path.getsize(filepath)
+            conn.sendall(filesize.to_bytes(8, "big"))
+            with open(filepath, "rb") as f:
+                conn.sendfile(f)
+        else:
+            conn.sendall((0).to_bytes(8, "big"))
+    except Exception as e:
+        print(f"[tcp] error handling {addr}: {e}")
+    finally:
+        conn.close()
 
