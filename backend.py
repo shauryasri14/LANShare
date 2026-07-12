@@ -1,7 +1,9 @@
+import os.path
 import socket
 import json
 import time
 import threading
+import PyPDF2
 broad_port=50000
 tcp_port=50001
 peers={}
@@ -82,6 +84,27 @@ def getpeersnapshot():
         for ip, info in peers.items():
             new_dictionary[ip] = dict(info)
     return new_dictionary
+
+def extract_test(filepath):
+    ext=os.path.splitext((filepath))[1].lower()
+    try:
+        if ext==".txt" or ext == ".md":
+            with open(filepath,"r",errors= "ignore") as f:
+                return f.read()[:5000]
+
+        if ext==".pdf":
+            try:
+                text=""
+                with open(filepath,"rb") as f:
+                    reader=PyPDF2.Pdfreader(f)
+                    for page in reader.pages[:5]:
+                        text+=page.extract_text() or ""
+                    return text[:5000]
+            except ImportError:
+                return ""
+    except Exception as e:
+        print(f"extract text failed for {filepath}:{e}")
+    return ""
 
 
 
