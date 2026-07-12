@@ -3,7 +3,7 @@ import socket
 import json
 import time
 import threading
-import PyPDF2
+
 broad_port=50000
 tcp_port=50001
 peers={}
@@ -94,6 +94,7 @@ def extract_test(filepath):
 
         if ext==".pdf":
             try:
+                import PyPDF2
                 text=""
                 with open(filepath,"rb") as f:
                     reader=PyPDF2.Pdfreader(f)
