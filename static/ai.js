@@ -32,6 +32,15 @@ async function embedText(text) {
 
     return Array.from(output.data);
 }
+function cosineSimilarity(a, b) {
+    let dot = 0;
+
+    for (let i = 0; i < a.length; i++) {
+        dot += a[i] * b[i];
+    }
+
+    return dot;
+}
 async function init() {
     await loadModel();
 }
