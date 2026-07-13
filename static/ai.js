@@ -18,7 +18,7 @@ async function loadModel() {
     );
 
     modelStatusEl.textContent =
-        "✅ Local AI model ready — search runs fully on this device.";
+        " Local AI model ready — search runs fully on this device.";
 }
 async function embedText(text) {
     if (!text || !text.trim()) {
@@ -55,6 +55,24 @@ async function fetchManifest(peerIp) {
 
     return res.json();
 }
+
+async function buildIndex() {
+    const peers = await fetchPeers();
+
+    const selfInfo = peers._self;
+    delete peers._self;
+
+    const peerIds = ["local", ...Object.keys(peers)];
+
+    const peerNames = {
+        local: `${selfInfo.name} (this laptop)`
+    };
+
+    for (const [ip, info] of Object.entries(peers)) {
+        peerNames[ip] = info.name;
+    }
+}
+
 async function init() {
     await loadModel();
 }
