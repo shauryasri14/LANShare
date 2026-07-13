@@ -71,6 +71,14 @@ async function buildIndex() {
     for (const [ip, info] of Object.entries(peers)) {
         peerNames[ip] = info.name;
     }
+    peerStatusEl.textContent =
+    Object.keys(peers).length === 0
+        ? "No other peers found yet on the LAN — still listening..."
+        : `Connected peers: ${Object.values(peers)
+              .map((p) => p.name)
+              .join(", ")}`;
+
+const newIndex = [];
 }
 
 async function init() {
