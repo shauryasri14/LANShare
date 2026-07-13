@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>LAN Resource Share — Semantic Search</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <header>
+    <h1> &#128225 LAN Resource Share</h1>
+    <div id="peer-status">Loading peers...</div>
+  </header>
+
+  <main>
+    <div id="search-bar">
+      <input id="search-input" type="text" placeholder="Search by meaning, e.g. 'diagrams about database relationships'" />
+      <button id="search-button">Search</button>
+    </div>
+
+    <div id="model-status">Loading local AI model... (first time only, needs internet once)</div>
+
+    <div id="results"></div>
+  </main>
+
+  <!-- app.js does all the AI + search logic -->
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
