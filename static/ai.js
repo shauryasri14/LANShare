@@ -79,6 +79,24 @@ async function buildIndex() {
               .join(", ")}`;
 
 const newIndex = [];
+
+for (const peerId of peerIds) {
+    const manifest = await fetchManifest(peerId);
+
+    for (const file of manifest) {
+        const existing = searchIndex.find(
+            (item) =>
+                item.filename === file.filename &&
+                item.peerIp === peerId
+        );
+
+        if (existing) {
+            newIndex.push(existing);
+            continue;
+        }
+    }
+}
+
 }
 
 async function init() {
