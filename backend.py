@@ -149,3 +149,47 @@ def handle_tcp_client(conn, addr):
     finally:
         conn.close()
 
+def tcp_server_loop():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(("", tcp_port))
+    server.listen(5)
+    while True:
+        conn, addr = server.accept()
+        threading.Thread(target=handle_tcp_client, args=(conn, addr), daemon=True).start()
+
+def request_manifest_from_peer(ip, tcp_port1):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    try:
+        sock.connect((ip, tcp_port1))
+        sock.sendall(b"MANIFEST")
+        size_bytes = sock.recv(8)
+        size = int.from_bytes(size_bytes, "big")
+        data = b""
+        while len(data) < size:
+            chunk = sock.recv(min(4096, size - len(data)))
+            if not chunk:
+                break
+            data += chunk
+        return json.loads(data.decode())
+    finally:
+        sock.close()
+
+def request_file_from_peer(ip, tcp_port2, filename):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(15)
+    try:
+        sock.connect((ip, tcp_port2))
+        sock.sendall(f"GET {filename}".encode())
+        size_bytes = sock.recv(8)
+        size = int.from_bytes(size_bytes, "big")
+        data = b""
+        while len(data) < size:
+            chunk = sock.recv(min(65536, size - len(data)))
+            if not chunk:
+                break
+            data += chunk
+        return data
+    finally:
+        sock.close()
