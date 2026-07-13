@@ -1,6 +1,7 @@
 # LANShare – Offline AI-Powered LAN File Sharing
 
-LANShare is a local network file-sharing application that allows devices on the same LAN to automatically discover one another, exchange file metadata, and perform AI-powered semantic search without relying on the internet or cloud services.
+Campus and hostel networks are often slow or unreliable, but everyone on the same Wi-Fi can already talk to each other directly. Finding a specific file someone else has shared today usually means asking around in a group chat and hoping someone remembers what they have.
+LANShare lets every device on the same local network automatically discover each other, share files with no internet required, and search across everyone's files by meaning, not just filename - e.g. searching "diagrams about database relationships" instead of guessing an exact filename
 
 ---
 
@@ -55,7 +56,7 @@ No external AI APIs are used.
 ├── shared files/           # Files shared over the LAN
 ├── index.html              # Frontend interface
 ├── style.css               # Frontend styling
-├── script.js               # AI semantic search logic
+├── ai.js               # AI semantic search logic
 └── README.md
 ```
 
