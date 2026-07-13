@@ -1,0 +1,110 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #0f1117;
+  color: #e6e6e6;
+  margin: 0;
+  padding: 0 20px 40px;
+}
+
+header {
+  padding: 24px 0 12px;
+  border-bottom: 1px solid #2a2d3a;
+  margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+
+#peer-status {
+  font-size: 0.9rem;
+  color: #8b90a0;
+}
+
+#search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#search-input {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #3a3e4d;
+  background: #1a1d29;
+  color: #fff;
+}
+
+#search-button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #4f7cff;
+  color: white;
+  cursor: pointer;
+}
+
+#search-button:hover {
+  background: #3d68e0;
+}
+
+#model-status {
+  font-size: 0.85rem;
+  color: #8b90a0;
+  margin-bottom: 20px;
+}
+
+.result-card {
+  background: #1a1d29;
+  border: 1px solid #2a2d3a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-info .filename {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.result-info .meta {
+  font-size: 0.8rem;
+  color: #8b90a0;
+  margin-top: 4px;
+}
+
+.result-info .snippet {
+  font-size: 0.85rem;
+  color: #b8bcc8;
+  margin-top: 6px;
+}
+
+.download-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #4f7cff;
+  background: transparent;
+  color: #4f7cff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.download-btn:hover {
+  background: #4f7cff;
+  color: white;
+}
+
+.score-badge {
+  font-size: 0.75rem;
+  color: #6ee7a8;
+  margin-top: 4px;
+}
