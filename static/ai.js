@@ -94,9 +94,19 @@ for (const peerId of peerIds) {
             newIndex.push(existing);
             continue;
         }
+        const embedding = await embedText(file.text || file.filename);
+
+    newIndex.push({
+    filename: file.filename,
+    size: file.size,
+    peerIp: peerId,
+    peerName: peerNames[peerId] || peerId,
+    text: file.text || "",
+    embedding,
+});
     }
 }
-
+searchIndex = newIndex;
 }
 
 async function init() {
