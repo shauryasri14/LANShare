@@ -28,8 +28,7 @@ def getmyip():
     return ip
 
 my_ip=getmyip()
-print(my_name)
-print(my_ip)
+
 def broadcast():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
