@@ -108,6 +108,27 @@ for (const peerId of peerIds) {
 }
 searchIndex = newIndex;
 }
+async function runSearch(query) {
+    if (!query.trim()) {
+        resultsEl.innerHTML = "";
+        return;
+    }
+
+    const queryEmbedding = await embedText(query);
+
+    if (!queryEmbedding) return;
+
+    const scored = searchIndex
+        .filter((item) => item.embedding)
+        .map((item) => ({
+            ...item,
+            score: cosineSimilarity(queryEmbedding, item.embedding),
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15);
+
+    renderResults(scored);
+}
 
 async function init() {
     await loadModel();
