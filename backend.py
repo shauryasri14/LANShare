@@ -2,11 +2,13 @@ import os.path
 import socket
 import json
 import time
+import mimetypes
 import threading
-from http.server import BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 broad_port=50000
 tcp_port=50001
+HTTP_PORT = 8000
 peers={}
 peer_lock=threading.Lock()
 socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -37,7 +39,7 @@ def broadcast():
         msg={
             "type":"hello",
             "name": my_name,
-            "ip address": my_ip,
+            "ip": my_ip,
             "tcp_port":tcp_port
         }
         try:
@@ -234,3 +236,77 @@ class apihandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"error": str(e)}, status=502)
             return
+
+        if path == "/api/download":
+            peer = params.get("peer", ["local"])[0]
+            filename = params.get("file", [""])[0]
+            if not filename:
+                self.send_response(400)
+                self.end_headers()
+                return
+
+            if peer == "local":
+                filepath = os.path.join(SHARED_DIR, filename)
+                if not os.path.isfile(filepath):
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+                with open(filepath, "rb") as f:
+                    data = f.read()
+            else:
+                snapshot = getpeersnapshot()
+                info = snapshot.get(peer)
+                if not info:
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+                data = request_file_from_peer(peer, info["tcp_port"], filename)
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        self._serve_static(path)
+
+    def _serve_static(self, path):
+        if path == "/":
+            path = "/index.html"
+        filepath = os.path.join(STATIC_DIR, path.lstrip("/"))
+        if not os.path.abspath(filepath).startswith(os.path.abspath(STATIC_DIR)):
+            self.send_response(403)
+            self.end_headers()
+            return
+        if not os.path.isfile(filepath):
+            self.send_response(404)
+            self.end_headers()
+            return
+        mime, _ = mimetypes.guess_type(filepath)
+        with open(filepath, "rb") as f:
+            data = f.read()
+        self.send_response(200)
+        self.send_header("Content-Type", mime or "application/octet-stream")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+
+def main():
+    print(f"== LAN P2P Resource Sharing ==")
+    print(f"My name: {my_name}")
+    print(f"My IP:   {my_ip}")
+    print(f"Sharing folder: {SHARED_DIR}")
+    print(f"Open http://localhost:{HTTP_PORT} in your browser\n")
+
+    threading.Thread(target=broadcast, daemon=True).start()
+    threading.Thread(target=listener, daemon=True).start()
+    threading.Thread(target=cleanup, daemon=True).start()
+    threading.Thread(target=tcp_server_loop, daemon=True).start()
+
+    httpd = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), apihandler)
+    httpd.serve_forever()
+if __name__=="__main__":
+    main()
