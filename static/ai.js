@@ -173,6 +173,29 @@ function renderResults(results) {
         });
     });
 }
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function escapeAttr(str) {
+    return str.replace(/"/g, "&quot;");
+}
+
+function formatBytes(bytes) {
+    if (!bytes) return "0 B";
+
+    const units = ["B", "KB", "MB", "GB"];
+    let i = 0;
+
+    while (bytes >= 1024 && i < units.length - 1) {
+        bytes /= 1024;
+        i++;
+    }
+
+    return `${bytes.toFixed(1)} ${units[i]}`;
+}   
 async function init() {
     await loadModel();
 }
