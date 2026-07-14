@@ -196,8 +196,27 @@ function formatBytes(bytes) {
 
     return `${bytes.toFixed(1)} ${units[i]}`;
 }   
+searchButton.addEventListener("click", () => {
+    runSearch(searchInput.value);
+});
+
+searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        runSearch(searchInput.value);
+    }
+});
+
 async function init() {
     await loadModel();
+    await buildIndex();
+
+    setInterval(async () => {
+        await buildIndex();
+
+        if (searchInput.value.trim()) {
+            runSearch(searchInput.value);
+        }
+    }, 10000);
 }
 
 init();
