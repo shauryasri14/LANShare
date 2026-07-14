@@ -129,7 +129,50 @@ async function runSearch(query) {
 
     renderResults(scored);
 }
+function renderResults(results) {
+    if (results.length === 0) {
+        resultsEl.innerHTML = "<p>No matching files found (yet).</p>";
+        return;
+    }
 
+    resultsEl.innerHTML = "";
+
+    for (const r of results) {
+        const card = document.createElement("div");
+        card.className = "result-card";
+
+        const snippet = (r.text || "")
+            .slice(0, 140)
+            .replace(/\s+/g, " ");
+
+        card.innerHTML = `
+      <div class="result-info">
+        <div class="filename">${escapeHtml(r.filename)}</div>
+        <div class="meta">From: ${escapeHtml(r.peerName)} · ${formatBytes(r.size)}</div>
+        ${snippet ? `<div class="snippet">${escapeHtml(snippet)}...</div>` : ""}
+        <div class="score-badge">match score: ${r.score.toFixed(3)}</div>
+      </div>
+
+      <button class="download-btn"
+          data-peer="${r.peerIp}"
+          data-file="${escapeAttr(r.filename)}">
+          Download
+      </button>
+    `;
+
+        resultsEl.appendChild(card);
+    }
+
+    resultsEl.querySelectorAll(".download-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const peer = btn.getAttribute("data-peer");
+            const file = btn.getAttribute("data-file");
+
+            window.location.href =
+                `/api/download?peer=${encodeURIComponent(peer)}&file=${encodeURIComponent(file)}`;
+        });
+    });
+}
 async function init() {
     await loadModel();
 }
