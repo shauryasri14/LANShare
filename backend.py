@@ -198,7 +198,7 @@ def request_file_from_peer(ip, tcp_port2, filename):
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
 class apihandler(BaseHTTPRequestHandler):
-    def log_message(self):
+    def log_message(self, format, *args):
         pass
 
     def _send_json(self, obj, status=200):
