@@ -3,7 +3,8 @@ import socket
 import json
 import time
 import threading
-
+from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
 broad_port=50000
 tcp_port=50001
 peers={}
@@ -193,3 +194,43 @@ def request_file_from_peer(ip, tcp_port2, filename):
         return data
     finally:
         sock.close()
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+
+class apihandler(BaseHTTPRequestHandler):
+    def log_msg(self):
+        pass
+
+    def _send_json(self, obj, status=200):
+        body = json.dumps(obj).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+        params = parse_qs(parsed.query)
+        if path == "/api/peers":
+            snapshot = getpeersnapshot()
+            snapshot["_self"] = {"name": my_name, "ip": my_ip}
+            self._send_json(snapshot)
+            return
+
+        if path == "/api/manifest":
+            peer = params.get("peer", ["local"])[0]
+            if peer == "local":
+                self._send_json(build_my_manifest())
+                return
+            snapshot = getpeersnapshot()
+            info = snapshot.get(peer)
+            if not info:
+                self._send_json({"error": "unknown peer"}, status=404)
+                return
+            try:
+                manifest = request_manifest_from_peer(peer, info["tcp_port"])
+                self._send_json(manifest)
+            except Exception as e:
+                self._send_json({"error": str(e)}, status=502)
+            return
