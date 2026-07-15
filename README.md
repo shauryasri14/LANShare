@@ -137,6 +137,9 @@ The peer list and search index refresh automatically every 10 seconds, so newly 
 ## 🖼️ Screenshots
 
 
+<img width="1600" height="1000" alt="WhatsApp Image 2026-07-15 at 17 41 40" src="https://github.com/user-attachments/assets/05d550ef-c90c-44d4-85e0-3ca12b4d105d" />
+<img width="1600" height="899" alt="WhatsApp Image 2026-07-15 at 17 41 45" src="https://github.com/user-attachments/assets/3611fa7d-7eb0-44f7-88cf-ac4c15721f21" />
+
 
 ---
 
